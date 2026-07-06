@@ -1,0 +1,17 @@
+{
+  "id": "shivatandava",
+  "title": "Shiva Tandava Stotram",
+  "deity": "Shiva",
+  "category": "Devotional Songs",
+  "language": "Sanskrit",
+  "verses": [
+    { "start": 0, "end": 8, "text": "जटाटवीगलज्जलप्रवाहपावितस्थले", "translation": "From the forest of His matted hair flows the pure waters of the Ganges" },
+    { "start": 8, "end": 14, "text": "गलेऽवलम्ब्य लम्बितां भुजङ्गतुङ्गमालिकाम्", "translation": "On His neck hangs the great snake like a garland" },
+    { "start": 14, "end": 20, "text": "डमड्डमड्डमड्डमन्निनादवड्डमर्वयम्", "translation": "The drum beats damad-damad-damad-damad, echoing through the worlds" },
+    { "start": 20, "end": 28, "text": "चकार चण्डताण्डवं तनोतु नः शिवः शिवम्", "translation": "And He performs His cosmic dance; may that Shiva bless us with prosperity" },
+    { "start": 28, "end": 36, "text": "जटाटवीगलज्जलप्रवाहपावितस्थले", "translation": "From the forest of His matted hair flows the pure waters of the Ganges" },
+    { "start": 36, "end": 42, "text": "गलेऽवलम्ब्य लम्बितां भुजङ्गतुङ्गमालिकाम्", "translation": "On His neck hangs the great snake like a garland" },
+    { "start": 42, "end": 48, "text": "डमड्डमड्डमड्डमन्निनादवड्डमर्वयम्", "translation": "The drum beats damad-damad-damad-damad, echoing through the worlds" },
+    { "start": 48, "end": 56, "text": "चकार चण्डताण्डवं तनोतु नः शिवः शिवम्", "translation": "And He performs His cosmic dance; may that Shiva bless us with prosperity" }
+  ]
+}

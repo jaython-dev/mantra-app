@@ -1,0 +1,17 @@
+{
+  "id": "harekrishna",
+  "title": "Hare Krishna Mahamantra",
+  "deity": "Krishna / Rama",
+  "category": "Meditation",
+  "language": "Sanskrit",
+  "verses": [
+    { "start": 0, "end": 6, "text": "हरे कृष्ण हरे कृष्ण", "translation": "Hare Krishna, Hare Krishna" },
+    { "start": 6, "end": 12, "text": "कृष्ण कृष्ण हरे हरे", "translation": "Krishna Krishna, Hare Hare" },
+    { "start": 12, "end": 18, "text": "हरे राम हरे राम", "translation": "Hare Rama, Hare Rama" },
+    { "start": 18, "end": 24, "text": "राम राम हरे हरे", "translation": "Rama Rama, Hare Hare" },
+    { "start": 24, "end": 30, "text": "हरे कृष्ण हरे कृष्ण", "translation": "Hare Krishna, Hare Krishna" },
+    { "start": 30, "end": 36, "text": "कृष्ण कृष्ण हरे हरे", "translation": "Krishna Krishna, Hare Hare" },
+    { "start": 36, "end": 42, "text": "हरे राम हरे राम", "translation": "Hare Rama, Hare Rama" },
+    { "start": 42, "end": 50, "text": "राम राम हरे हरे", "translation": "Rama Rama, Hare Hare" }
+  ]
+}

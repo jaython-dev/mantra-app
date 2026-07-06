@@ -1,0 +1,17 @@
+{
+  "id": "ganesha",
+  "title": "Ganesha Mantra (Vakratunda Mahakaya)",
+  "deity": "Ganesha",
+  "category": "Morning Mantras",
+  "language": "Sanskrit",
+  "verses": [
+    { "start": 0, "end": 7, "text": "वक्रतुण्ड महाकाय", "translation": "O Lord Ganesha, of curved trunk and massive body" },
+    { "start": 7, "end": 13, "text": "सूर्यकोटि समप्रभ", "translation": "Who shines with the effulgence of millions of suns" },
+    { "start": 13, "end": 20, "text": "निर्विघ्नं कुरु मे देव", "translation": "Please make all my deeds free of obstacles" },
+    { "start": 20, "end": 26, "text": "सर्वकार्येषु सर्वदा", "translation": "In all my works, always and forever" },
+    { "start": 26, "end": 33, "text": "ॐ गं गणपतये नमः", "translation": "Om, I bow down to Lord Ganesha, the leader of all forces" },
+    { "start": 33, "end": 40, "text": "ॐ गं गणपतये नमः", "translation": "Om, I bow down to Lord Ganesha, the leader of all forces" },
+    { "start": 40, "end": 47, "text": "ॐ गं गणपतये नमः", "translation": "Om, I bow down to Lord Ganesha, the leader of all forces" },
+    { "start": 47, "end": 55, "text": "ॐ गं गणपतये नमः", "translation": "Om, I bow down to Lord Ganesha, the leader of all forces" }
+  ]
+}

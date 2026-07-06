@@ -1,0 +1,17 @@
+{
+  "id": "gayatri",
+  "title": "Gayatri Mantra",
+  "deity": "Gayatri / Savitr",
+  "category": "Daily Prayers",
+  "language": "Sanskrit",
+  "verses": [
+    { "start": 0, "end": 6, "text": "ॐ भूर्भुवः स्वः", "translation": "Om, we meditate on the three worlds: Earth, Sky, and Heaven" },
+    { "start": 6, "end": 12, "text": "तत्सवितुर्वरेण्यं", "translation": "We worship that adorable, supreme source of light and life" },
+    { "start": 12, "end": 18, "text": "भर्गो देवस्य धीमहि", "translation": "May we absorb the divine splendor of the spiritual Sun" },
+    { "start": 18, "end": 24, "text": "धियो यो नः प्रचोदयात्", "translation": "May He stimulate and guide our intellect towards wisdom" },
+    { "start": 24, "end": 30, "text": "ॐ भूर्भुवः स्वः", "translation": "Om, we meditate on the three worlds: Earth, Sky, and Heaven" },
+    { "start": 30, "end": 36, "text": "तत्सवितुर्वरेण्यं", "translation": "We worship that adorable, supreme source of light and life" },
+    { "start": 36, "end": 42, "text": "भर्गो देवस्य धीमहि", "translation": "May we absorb the divine splendor of the spiritual Sun" },
+    { "start": 42, "end": 50, "text": "धियो यो नः प्रचोदयात्", "translation": "May He stimulate and guide our intellect towards wisdom" }
+  ]
+}
