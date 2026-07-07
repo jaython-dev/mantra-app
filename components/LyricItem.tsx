@@ -1,10 +1,5 @@
-import React, { useEffect } from 'react';
-import { Text, Pressable } from 'react-native';
-import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  withSpring,
-} from 'react-native-reanimated';
+import React, { useEffect, useRef } from 'react';
+import { Text, Pressable, Animated } from 'react-native';
 
 interface LyricItemProps {
   text: string;
@@ -19,20 +14,25 @@ export const LyricItem: React.FC<LyricItemProps> = ({
   isActive,
   onPress,
 }) => {
-  const scale = useSharedValue(1);
-  const opacity = useSharedValue(0.6);
+  const scaleAnim = useRef(new Animated.Value(isActive ? 1.05 : 1.0)).current;
+  const opacityAnim = useRef(new Animated.Value(isActive ? 1.0 : 0.5)).current;
 
   useEffect(() => {
-    scale.value = withSpring(isActive ? 1.05 : 1.0, { damping: 15 });
-    opacity.value = withSpring(isActive ? 1.0 : 0.5, { damping: 15 });
+    Animated.parallel([
+      Animated.spring(scaleAnim, {
+        toValue: isActive ? 1.05 : 1.0,
+        damping: 15,
+        stiffness: 150,
+        useNativeDriver: true,
+      }),
+      Animated.spring(opacityAnim, {
+        toValue: isActive ? 1.0 : 0.5,
+        damping: 15,
+        stiffness: 150,
+        useNativeDriver: true,
+      }),
+    ]).start();
   }, [isActive]);
-
-  const animatedTextClass = useAnimatedStyle(() => {
-    return {
-      transform: [{ scale: scale.value }],
-      opacity: opacity.value,
-    };
-  });
 
   return (
     <Pressable
@@ -42,7 +42,10 @@ export const LyricItem: React.FC<LyricItemProps> = ({
       }`}
     >
       <Animated.Text
-        style={animatedTextClass}
+        style={{
+          transform: [{ scale: scaleAnim }],
+          opacity: opacityAnim,
+        }}
         className={`text-xl font-bold font-devanagari text-center tracking-wide leading-relaxed ${
           isActive
             ? 'text-spiritual-saffron dark:text-spiritual-saffronLight font-black'

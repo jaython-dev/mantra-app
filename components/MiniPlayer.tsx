@@ -1,13 +1,12 @@
 import React from 'react';
 import { View, Text, Image, Pressable, TouchableOpacity } from 'react-native';
 import { Play, Pause, ChevronRight } from 'lucide-react-native';
-import { useNavigation } from '@react-navigation/native';
+import { navigationRef } from '../navigation/AppNavigator';
 import { usePlayerStore } from '../store/playerStore';
 import { useTheme } from '../hooks/useTheme';
 import { blurActiveElement } from '../utils/blurActiveElement';
 
 export const MiniPlayer: React.FC = () => {
-  const navigation = useNavigation<any>();
   const { colors } = useTheme();
   
   const {
@@ -39,7 +38,9 @@ export const MiniPlayer: React.FC = () => {
     <Pressable
       onPress={() => {
         blurActiveElement();
-        navigation.navigate('MantraDetails', { mantraId: currentMantra.id });
+        if (navigationRef.isReady()) {
+          (navigationRef as any).navigate('MantraDetails', { mantraId: currentMantra.id });
+        }
       }}
       style={{
         position: 'absolute',

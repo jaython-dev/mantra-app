@@ -1,17 +1,42 @@
 import { TrackData, AudioServiceListeners, PlaybackState } from './audioServiceTypes';
 
-// Register the headless playback service for Android background audio.
-// This MUST be called before registerRootComponent in index.ts but we export it
-// here so it can be called at app entry. On iOS/Web this is a no-op.
-export function registerBackgroundService() {
+type TrackPlayerModule = {
+  setupPlayer?: (options?: any) => Promise<void>;
+  updateOptions?: (options: any) => Promise<void>;
+  addEventListener?: (event: string, listener: (data: any) => void) => void;
+  reset?: () => Promise<void>;
+  add?: (track: any) => Promise<void>;
+  play?: () => Promise<void>;
+  pause?: () => Promise<void>;
+  stop?: () => Promise<void>;
+  seekTo?: (seconds: number) => Promise<void>;
+  setRate?: (speed: number) => Promise<void>;
+  getProgress?: () => Promise<{ position: number; duration: number }>;
+};
+
+function getTrackPlayerModule(): TrackPlayerModule | null {
   try {
-    const TrackPlayer = require('react-native-track-player').default;
-    const { registerPlaybackService } = require('react-native-track-player');
-    registerPlaybackService(() => async () => {
-      // Headless service handler — keeps audio session alive on Android
-    });
+    const module = require('react-native-track-player');
+    const TrackPlayer = module?.default ?? module;
+    return TrackPlayer && typeof TrackPlayer === 'object' ? (TrackPlayer as TrackPlayerModule) : null;
+  } catch (error) {
+    console.warn('react-native-track-player is unavailable; audio playback will be disabled.', error);
+    return null;
+  }
+}
+
+function getTrackPlayerConstants() {
+  try {
+    const module = require('react-native-track-player');
+    return {
+      AppKilledPlaybackBehavior: module?.AppKilledPlaybackBehavior,
+      Capability: module?.Capability,
+      Event: module?.Event,
+      State: module?.State,
+      registerPlaybackService: module?.registerPlaybackService,
+    };
   } catch {
-    // Not available on web or when RNTP isn't available
+    return null;
   }
 }
 
@@ -20,6 +45,7 @@ class NativeAudioEngine {
   private initialized = false;
   private progressInterval: any = null;
   private currentTrackDuration = 0;
+  private trackPlayerAvailable = false;
 
   setListeners(listeners: AudioServiceListeners) {
     this.listeners = listeners;
@@ -28,39 +54,57 @@ class NativeAudioEngine {
   async initialize(): Promise<void> {
     if (this.initialized) return;
 
+    this.initialized = true;
+
+    const TrackPlayer = getTrackPlayerModule();
+    const constants = getTrackPlayerConstants();
+
+    if (!TrackPlayer || !constants?.Capability || !constants?.AppKilledPlaybackBehavior) {
+      this.trackPlayerAvailable = false;
+      console.warn('react-native-track-player is unavailable; audio playback will be disabled.');
+      return;
+    }
+
     try {
-      const TrackPlayer = require('react-native-track-player').default;
-      const { AppKilledPlaybackBehavior, Capability } = require('react-native-track-player');
+      this.trackPlayerAvailable = true;
+      try {
+        await TrackPlayer.setupPlayer?.({});
+      } catch (setupError: any) {
+        if (!setupError?.message?.includes('already been initialized')) {
+          throw setupError;
+        }
+      }
 
-      await TrackPlayer.setupPlayer({});
-
-      await TrackPlayer.updateOptions({
+      await TrackPlayer.updateOptions?.({
         android: {
-          appKilledPlaybackBehavior: AppKilledPlaybackBehavior.StopPlaybackAndRemoveNotification,
+          appKilledPlaybackBehavior: constants.AppKilledPlaybackBehavior.StopPlaybackAndRemoveNotification,
         },
         capabilities: [
-          Capability.Play,
-          Capability.Pause,
-          Capability.SkipToNext,
-          Capability.SkipToPrevious,
-          Capability.SeekTo,
+          constants.Capability.Play,
+          constants.Capability.Pause,
+          constants.Capability.SkipToNext,
+          constants.Capability.SkipToPrevious,
+          constants.Capability.SeekTo,
         ],
-        compactCapabilities: [Capability.Play, Capability.Pause],
+        compactCapabilities: [constants.Capability.Play, constants.Capability.Pause],
       });
 
       this.setupNativeEventListeners();
-      this.initialized = true;
     } catch (e) {
-      console.error('Failed to initialize react-native-track-player', e);
+      this.trackPlayerAvailable = false;
+      console.warn('Failed to initialize react-native-track-player, falling back to no-op audio.', e);
     }
   }
 
   private setupNativeEventListeners() {
-    const TrackPlayer = require('react-native-track-player').default;
-    const { Event, State } = require('react-native-track-player');
+    const TrackPlayer = getTrackPlayerModule();
+    const constants = getTrackPlayerConstants();
 
-    TrackPlayer.addEventListener(Event.PlaybackState, ({ state }: any) => {
-      // Use State enum values for reliable comparison across RNTP versions
+    if (!TrackPlayer || !constants?.Event || !constants?.State) return;
+
+    const { Event, State } = constants;
+
+    TrackPlayer.addEventListener?.(Event.PlaybackState, ({ state }: any) => {
       if (state === State.Playing) {
         this.listeners.onStateChange?.('playing');
         this.startProgressPolling();
@@ -78,19 +122,26 @@ class NativeAudioEngine {
       }
     });
 
-    TrackPlayer.addEventListener(Event.PlaybackQueueEnded, () => {
+    TrackPlayer.addEventListener?.(Event.PlaybackQueueEnded, () => {
       this.listeners.onTrackEnded?.();
     });
   }
 
   async play(track: TrackData): Promise<void> {
     await this.initialize();
-    
-    const TrackPlayer = require('react-native-track-player').default;
+
+    if (!this.trackPlayerAvailable) {
+      this.currentTrackDuration = track.duration;
+      this.listeners.onStateChange?.('playing');
+      this.listeners.onProgress?.(0, track.duration);
+      return;
+    }
+
+    const TrackPlayer = getTrackPlayerModule();
     this.currentTrackDuration = track.duration;
 
-    await TrackPlayer.reset();
-    await TrackPlayer.add({
+    await TrackPlayer?.reset?.();
+    await TrackPlayer?.add?.({
       id: track.id,
       url: track.url,
       title: track.title,
@@ -99,54 +150,73 @@ class NativeAudioEngine {
       duration: track.duration,
     });
 
-    await TrackPlayer.play();
+    await TrackPlayer?.play?.();
   }
 
   async pause(): Promise<void> {
-    const TrackPlayer = require('react-native-track-player').default;
-    await TrackPlayer.pause();
+    if (!this.trackPlayerAvailable) {
+      this.listeners.onStateChange?.('paused');
+      return;
+    }
+
+    await getTrackPlayerModule()?.pause?.();
   }
 
   async resume(): Promise<void> {
-    const TrackPlayer = require('react-native-track-player').default;
-    await TrackPlayer.play();
+    if (!this.trackPlayerAvailable) {
+      this.listeners.onStateChange?.('playing');
+      return;
+    }
+
+    await getTrackPlayerModule()?.play?.();
   }
 
   async stop(): Promise<void> {
-    const TrackPlayer = require('react-native-track-player').default;
-    await TrackPlayer.stop();
+    if (!this.trackPlayerAvailable) {
+      this.listeners.onStateChange?.('idle');
+      return;
+    }
+
+    await getTrackPlayerModule()?.stop?.();
     this.stopProgressPolling();
   }
 
   async seek(seconds: number): Promise<void> {
-    const TrackPlayer = require('react-native-track-player').default;
-    await TrackPlayer.seekTo(seconds);
+    if (!this.trackPlayerAvailable) return;
+    await getTrackPlayerModule()?.seekTo?.(seconds);
   }
 
   async setSpeed(speed: number): Promise<void> {
-    const TrackPlayer = require('react-native-track-player').default;
-    await TrackPlayer.setRate(speed);
+    if (!this.trackPlayerAvailable) return;
+    await getTrackPlayerModule()?.setRate?.(speed);
   }
 
   private startProgressPolling() {
     this.stopProgressPolling();
-    const TrackPlayer = require('react-native-track-player').default;
+    const TrackPlayer = getTrackPlayerModule();
 
-    this.progressInterval = setInterval(async () => {
+    if (!TrackPlayer || !TrackPlayer.getProgress) return;
+    const getProgress = TrackPlayer.getProgress;
+
+    const poll = async () => {
       try {
-        // getProgress() is the non-deprecated API in RNTP v4+
-        const progress = await TrackPlayer.getProgress();
+        const progress = await getProgress();
         this.listeners.onProgress?.(
           progress.position,
           progress.duration || this.currentTrackDuration
         );
       } catch {}
-    }, 250);
+      if (this.progressInterval) {
+        this.progressInterval = setTimeout(poll, 250);
+      }
+    };
+
+    this.progressInterval = setTimeout(poll, 250);
   }
 
   private stopProgressPolling() {
     if (this.progressInterval) {
-      clearInterval(this.progressInterval);
+      clearTimeout(this.progressInterval);
       this.progressInterval = null;
     }
   }

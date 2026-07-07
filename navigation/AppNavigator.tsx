@@ -1,7 +1,10 @@
 import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { createNavigationContainerRef } from '@react-navigation/native';
 import { Home, Heart, Settings } from 'lucide-react-native';
+
+export const navigationRef = createNavigationContainerRef();
 import { HomeScreen } from '../features/home/HomeScreen';
 import { FavoritesScreen } from '../features/favorites/FavoritesScreen';
 import { SettingsScreen } from '../features/settings/SettingsScreen';

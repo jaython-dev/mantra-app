@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "skills": {
+    "react-native-architecture": {
+      "source": "sickn33/antigravity-awesome-skills",
+      "sourceType": "github",
+      "skillPath": "skills/react-native-architecture/SKILL.md",
+      "computedHash": "448fbd5d345f61289d7f6f5904e747c4f8da6f06044c13853ba99f629b3f2830"
+    }
+  }
+}

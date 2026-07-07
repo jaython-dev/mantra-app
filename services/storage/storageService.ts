@@ -62,8 +62,15 @@ let storage: {
 
 if (Platform.OS !== 'web') {
   try {
-    const { MMKV } = require('react-native-mmkv');
-    storage = new MMKV();
+    const { createMMKV } = require('react-native-mmkv');
+    const mmkvInstance = createMMKV();
+    storage = {
+      set: (key, value) => mmkvInstance.set(key, value),
+      getString: (key) => mmkvInstance.getString(key),
+      getBoolean: (key) => mmkvInstance.getBoolean(key),
+      getNumber: (key) => mmkvInstance.getNumber(key),
+      delete: (key) => mmkvInstance.remove(key),
+    };
   } catch (e) {
     console.warn('MMKV failed to initialize, falling back to mock storage', e);
     storage = new MMKVMock();

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Text, Pressable } from 'react-native';
+import { Text, TouchableOpacity } from 'react-native';
 
 interface CategoryChipProps {
   title: string;
@@ -13,7 +13,8 @@ export const CategoryChip: React.FC<CategoryChipProps> = ({
   onPress,
 }) => {
   return (
-    <Pressable
+    <TouchableOpacity
+      activeOpacity={0.8}
       onPress={onPress}
       className={`px-5 py-2.5 rounded-full mr-2.5 flex-row items-center border ${
         active
@@ -30,7 +31,7 @@ export const CategoryChip: React.FC<CategoryChipProps> = ({
       >
         {title}
       </Text>
-    </Pressable>
+    </TouchableOpacity>
   );
 };
 export default CategoryChip;

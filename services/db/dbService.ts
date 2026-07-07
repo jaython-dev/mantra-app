@@ -90,7 +90,7 @@ class SQLiteDatabase implements DatabaseInterface {
   async initialize(): Promise<void> {
     try {
       const SQLite = require('expo-sqlite');
-      this.db = await SQLite.openDatabaseAsync('mantras.db');
+      this.db = await SQLite.openDatabaseAsync('mantras.db', { useNewConnection: true });
       
       // Create tables
       await this.db.execAsync(`

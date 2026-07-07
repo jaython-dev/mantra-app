@@ -5,11 +5,11 @@ import {
   Image,
   ScrollView,
   TouchableOpacity,
-  SafeAreaView,
   Dimensions,
   LayoutChangeEvent,
   Pressable,
 } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRoute, useNavigation } from '@react-navigation/native';
 import {
   Play,
@@ -168,15 +168,16 @@ export const MantraDetailsScreen: React.FC = () => {
         </TouchableOpacity>
       </View>
 
-      <ScrollView showsVerticalScrollIndicator={false} className="flex-1 px-6">
-        {/* Large Cover Art with Reanimated shadow feel */}
-        <View className="items-center mt-4">
+      <View className="flex-1 px-6 justify-between pb-6">
+        {/* Top Info (Cover & Title) */}
+        <View className="items-center">
+          {/* Cover Art */}
           <View
             style={{ 
-              width: Math.min(SCREEN_WIDTH * 0.72, 280), 
-              height: Math.min(SCREEN_WIDTH * 0.72, 280) 
+              width: Math.min(SCREEN_WIDTH * 0.48, 180), 
+              height: Math.min(SCREEN_WIDTH * 0.48, 180) 
             }}
-            className="rounded-3xl overflow-hidden shadow-2xl border border-gray-200/50 dark:border-neutral-900 bg-white"
+            className="rounded-3xl overflow-hidden shadow-md border border-gray-200/50 dark:border-neutral-900 bg-white"
           >
             <Image
               source={selectedMantra.cover}
@@ -184,27 +185,27 @@ export const MantraDetailsScreen: React.FC = () => {
               resizeMode="cover"
             />
           </View>
+
+          {/* Title / Description info */}
+          <View className="items-center mt-3">
+            <Text className="text-xl font-black text-spiritual-charcoal dark:text-white text-center">
+              {selectedMantra.title}
+            </Text>
+            <Text className="text-xs font-semibold text-spiritual-amber dark:text-spiritual-saffronLight mt-0.5 uppercase tracking-widest">
+              {selectedMantra.deity} • {selectedMantra.category}
+            </Text>
+            <Text numberOfLines={2} className="text-[11px] text-neutral-400 dark:text-neutral-500 text-center px-4 mt-2 leading-relaxed">
+              {selectedMantra.description}
+            </Text>
+          </View>
         </View>
 
-        {/* Title / Description info */}
-        <View className="items-center mt-6">
-          <Text className="text-2xl font-black text-spiritual-charcoal dark:text-white text-center">
-            {selectedMantra.title}
-          </Text>
-          <Text className="text-sm font-semibold text-spiritual-amber dark:text-spiritual-saffronLight mt-1 uppercase tracking-widest">
-            {selectedMantra.deity} • {selectedMantra.category}
-          </Text>
-          <Text className="text-xs text-neutral-400 dark:text-neutral-500 text-center px-4 mt-3 leading-relaxed">
-            {selectedMantra.description}
-          </Text>
-        </View>
-
-        {/* Dynamic Auto-Scrolling Lyrics Section */}
-        <View className="h-64 my-6 rounded-3xl bg-white/40 dark:bg-spiritual-surfaceDark/30 border border-white/50 dark:border-neutral-900/40 p-4">
+        {/* Dynamic Auto-Scrolling Lyrics Section (Flex Fill) */}
+        <View className="flex-1 my-4 rounded-3xl bg-white/40 dark:bg-spiritual-surfaceDark/30 border border-white/50 dark:border-neutral-900/40 p-4">
           <ScrollView
             ref={scrollViewRef}
             showsVerticalScrollIndicator={false}
-            contentContainerStyle={{ paddingVertical: 20 }}
+            contentContainerStyle={{ paddingVertical: 10 }}
           >
             {selectedMantra.lyrics && selectedMantra.lyrics.verses ? (
               selectedMantra.lyrics.verses.map((verse: any, idx: number) => (
@@ -226,151 +227,154 @@ export const MantraDetailsScreen: React.FC = () => {
           </ScrollView>
         </View>
 
-        {/* Repetition Counter Widget */}
-        <View className="flex-row items-center justify-between bg-white dark:bg-spiritual-surfaceDark/50 rounded-2xl p-4 mb-6 shadow-sm border border-gray-50 dark:border-neutral-900">
-          <View className="flex-row items-center">
-            <Layers size={18} color="#FF9933" />
-            <View className="ml-3">
-              <Text className="text-xs font-semibold text-neutral-400">Repetitions</Text>
-              <Text className="text-sm font-bold text-spiritual-charcoal dark:text-white mt-0.5">
-                Target: {getRepeatTargetLabel(repeatTarget)}
+        {/* Bottom Control & Info Panel */}
+        <View>
+          {/* Repetition Counter Widget */}
+          <View className="flex-row items-center justify-between bg-white dark:bg-spiritual-surfaceDark/50 rounded-2xl p-3 mb-4 shadow-sm border border-gray-50 dark:border-neutral-900">
+            <View className="flex-row items-center">
+              <Layers size={16} color="#FF9933" />
+              <View className="ml-3">
+                <Text className="text-[10px] font-semibold text-neutral-400">Repetitions</Text>
+                <Text className="text-xs font-bold text-spiritual-charcoal dark:text-white mt-0.5">
+                  Target: {getRepeatTargetLabel(repeatTarget)}
+                </Text>
+              </View>
+            </View>
+            
+            <View className="flex-row items-center space-x-3">
+              <View className="bg-spiritual-saffron/10 dark:bg-spiritual-saffron/20 px-2.5 py-1 rounded-lg">
+                <Text className="text-[10px] font-bold text-spiritual-amber dark:text-spiritual-saffronLight">
+                  Played: {repeatCount} times
+                </Text>
+              </View>
+              <TouchableOpacity onPress={resetRepeatCount} className="p-1">
+                <Text className="text-[10px] text-neutral-400 font-semibold underline">Reset</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+
+          {/* Custom Seek Progress Bar */}
+          <View className="mb-4">
+            <Pressable
+              onPress={handleProgressBarPress}
+              onLayout={(e: LayoutChangeEvent) => setSliderWidth(e.nativeEvent.layout.width)}
+              className="h-2 w-full bg-neutral-200 dark:bg-neutral-800 rounded-full overflow-hidden justify-center"
+            >
+              <View
+                style={{ width: `${progressPercent}%` }}
+                className="h-full bg-spiritual-saffron rounded-full"
+              />
+            </Pressable>
+            
+            <View className="flex-row justify-between items-center mt-2">
+              <Text className="text-[10px] font-semibold text-neutral-400 dark:text-neutral-500">
+                {formatTime(position)}
+              </Text>
+              <Text className="text-[10px] font-semibold text-neutral-400 dark:text-neutral-500">
+                {formatTime(duration)}
               </Text>
             </View>
           </View>
-          
-          <View className="flex-row items-center space-x-3">
-            <View className="bg-spiritual-saffron/10 dark:bg-spiritual-saffron/20 px-3 py-1.5 rounded-xl">
-              <Text className="text-xs font-bold text-spiritual-amber dark:text-spiritual-saffronLight">
-                Played: {repeatCount} times
-              </Text>
+
+          {/* Playback Settings Quick Actions */}
+          <View className="flex-row justify-around items-center mb-4">
+            {/* Speed Action */}
+            <View className="relative items-center">
+              <TouchableOpacity
+                onPress={() => {
+                  setShowSpeedMenu(!showSpeedMenu);
+                  setShowRepeatMenu(false);
+                }}
+                className="flex-row items-center bg-white dark:bg-spiritual-surfaceDark px-3.5 py-2 rounded-full border border-gray-100 dark:border-neutral-900"
+              >
+                <Gauge size={12} color="#FF9933" />
+                <Text className="text-[11px] font-bold text-spiritual-charcoal dark:text-white ml-2">
+                  Speed: {playbackSpeed}x
+                </Text>
+              </TouchableOpacity>
+
+              {showSpeedMenu && (
+                <View className="absolute bottom-11 w-24 bg-white dark:bg-spiritual-surfaceDark border border-gray-100 dark:border-neutral-900 rounded-2xl shadow-xl p-1.5 z-50">
+                  {SPEED_OPTIONS.map(opt => (
+                    <TouchableOpacity
+                      key={`speed-${opt}`}
+                      onPress={() => {
+                        setPlaybackSpeed(opt);
+                        setShowSpeedMenu(false);
+                      }}
+                      className="py-2 px-2.5 rounded-lg hover:bg-neutral-50 dark:hover:bg-neutral-800"
+                    >
+                      <Text className={`text-[11px] text-center font-semibold ${playbackSpeed === opt ? 'text-spiritual-saffron' : 'text-neutral-500'}`}>
+                        {opt}x
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              )}
             </View>
-            <TouchableOpacity onPress={resetRepeatCount} className="p-1">
-              <Text className="text-xs text-neutral-400 font-semibold underline">Reset</Text>
+
+            {/* Repeat Limit Action */}
+            <View className="relative items-center">
+              <TouchableOpacity
+                onPress={() => {
+                  setShowRepeatMenu(!showRepeatMenu);
+                  setShowSpeedMenu(false);
+                }}
+                className="flex-row items-center bg-white dark:bg-spiritual-surfaceDark px-3.5 py-2 rounded-full border border-gray-100 dark:border-neutral-900"
+              >
+                <Repeat size={12} color="#FF9933" />
+                <Text className="text-[11px] font-bold text-spiritual-charcoal dark:text-white ml-2">
+                  Limit: {getRepeatTargetLabel(repeatTarget)}
+                </Text>
+              </TouchableOpacity>
+
+              {showRepeatMenu && (
+                <View className="absolute bottom-11 w-24 bg-white dark:bg-spiritual-surfaceDark border border-gray-100 dark:border-neutral-900 rounded-2xl shadow-xl p-1.5 z-50">
+                  {REPEAT_TARGETS.map(opt => (
+                    <TouchableOpacity
+                      key={`target-${opt}`}
+                      onPress={() => {
+                        setRepeatTarget(opt);
+                        setShowRepeatMenu(false);
+                      }}
+                      className="py-2 px-2.5 rounded-lg hover:bg-neutral-50 dark:hover:bg-neutral-800"
+                    >
+                      <Text className={`text-[11px] text-center font-semibold ${repeatTarget === opt ? 'text-spiritual-saffron' : 'text-neutral-500'}`}>
+                        {getRepeatTargetLabel(opt)}
+                      </Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              )}
+            </View>
+          </View>
+
+          {/* Primary Audio Player Actions */}
+          <View className="flex-row justify-center items-center space-x-8 mb-4">
+            {/* Skip Back */}
+            <TouchableOpacity onPress={previous} className="p-2">
+              <SkipBack size={24} color={colors.text} fill={colors.text} />
             </TouchableOpacity>
-          </View>
-        </View>
 
-        {/* Custom Seek Progress Bar */}
-        <View className="mb-6">
-          <Pressable
-            onPress={handleProgressBarPress}
-            onLayout={(e: LayoutChangeEvent) => setSliderWidth(e.nativeEvent.layout.width)}
-            className="h-3 w-full bg-neutral-200 dark:bg-neutral-800 rounded-full overflow-hidden justify-center"
-          >
-            <View
-              style={{ width: `${progressPercent}%` }}
-              className="h-full bg-spiritual-saffron rounded-full"
-            />
-          </Pressable>
-          
-          <View className="flex-row justify-between items-center mt-2.5">
-            <Text className="text-xs font-semibold text-neutral-400 dark:text-neutral-500">
-              {formatTime(position)}
-            </Text>
-            <Text className="text-xs font-semibold text-neutral-400 dark:text-neutral-500">
-              {formatTime(duration)}
-            </Text>
-          </View>
-        </View>
-
-        {/* Playback Settings Quick Actions */}
-        <View className="flex-row justify-around items-center mb-8">
-          {/* Speed Action */}
-          <View className="relative items-center">
+            {/* Play/Pause Main */}
             <TouchableOpacity
-              onPress={() => {
-                setShowSpeedMenu(!showSpeedMenu);
-                setShowRepeatMenu(false);
-              }}
-              className="flex-row items-center bg-white dark:bg-spiritual-surfaceDark px-4 py-2.5 rounded-full border border-gray-100 dark:border-neutral-900"
+              onPress={togglePlayPause}
+              className="w-16 h-16 bg-spiritual-saffron rounded-full items-center justify-center shadow-md active:scale-95 transition-all duration-100"
             >
-              <Gauge size={14} color="#FF9933" />
-              <Text className="text-xs font-bold text-spiritual-charcoal dark:text-white ml-2">
-                Speed: {playbackSpeed}x
-              </Text>
+              {isPlaying ? (
+                <Pause size={28} color="white" fill="white" />
+              ) : (
+                <Play size={28} color="white" fill="white" className="ml-1" />
+              )}
             </TouchableOpacity>
 
-            {showSpeedMenu && (
-              <View className="absolute bottom-12 w-28 bg-white dark:bg-spiritual-surfaceDark border border-gray-100 dark:border-neutral-900 rounded-2xl shadow-xl p-2 z-50">
-                {SPEED_OPTIONS.map(opt => (
-                  <TouchableOpacity
-                    key={`speed-${opt}`}
-                    onPress={() => {
-                      setPlaybackSpeed(opt);
-                      setShowSpeedMenu(false);
-                    }}
-                    className="py-2.5 px-3 rounded-lg hover:bg-neutral-50 dark:hover:bg-neutral-800"
-                  >
-                    <Text className={`text-xs text-center font-semibold ${playbackSpeed === opt ? 'text-spiritual-saffron' : 'text-neutral-500'}`}>
-                      {opt}x
-                    </Text>
-                  </TouchableOpacity>
-                ))}
-              </View>
-            )}
-          </View>
-
-          {/* Repeat Limit Action */}
-          <View className="relative items-center">
-            <TouchableOpacity
-              onPress={() => {
-                setShowRepeatMenu(!showRepeatMenu);
-                setShowSpeedMenu(false);
-              }}
-              className="flex-row items-center bg-white dark:bg-spiritual-surfaceDark px-4 py-2.5 rounded-full border border-gray-100 dark:border-neutral-900"
-            >
-              <Repeat size={14} color="#FF9933" />
-              <Text className="text-xs font-bold text-spiritual-charcoal dark:text-white ml-2">
-                Limit: {getRepeatTargetLabel(repeatTarget)}
-              </Text>
+            {/* Skip Forward */}
+            <TouchableOpacity onPress={next} className="p-2">
+              <SkipForward size={24} color={colors.text} fill={colors.text} />
             </TouchableOpacity>
-
-            {showRepeatMenu && (
-              <View className="absolute bottom-12 w-28 bg-white dark:bg-spiritual-surfaceDark border border-gray-100 dark:border-neutral-900 rounded-2xl shadow-xl p-2 z-50">
-                {REPEAT_TARGETS.map(opt => (
-                  <TouchableOpacity
-                    key={`target-${opt}`}
-                    onPress={() => {
-                      setRepeatTarget(opt);
-                      setShowRepeatMenu(false);
-                    }}
-                    className="py-2.5 px-3 rounded-lg hover:bg-neutral-50 dark:hover:bg-neutral-800"
-                  >
-                    <Text className={`text-xs text-center font-semibold ${repeatTarget === opt ? 'text-spiritual-saffron' : 'text-neutral-500'}`}>
-                      {getRepeatTargetLabel(opt)}
-                    </Text>
-                  </TouchableOpacity>
-                ))}
-              </View>
-            )}
           </View>
         </View>
-
-        {/* Primary Audio Player Actions */}
-        <View className="flex-row justify-center items-center space-x-8 mb-12">
-          {/* Skip Back */}
-          <TouchableOpacity onPress={previous} className="p-3">
-            <SkipBack size={26} color={colors.text} fill={colors.text} />
-          </TouchableOpacity>
-
-          {/* Play/Pause Main */}
-          <TouchableOpacity
-            onPress={togglePlayPause}
-            className="w-20 h-20 bg-spiritual-saffron rounded-full items-center justify-center shadow-md active:scale-95 transition-all duration-100"
-          >
-            {isPlaying ? (
-              <Pause size={32} color="white" fill="white" />
-            ) : (
-              <Play size={32} color="white" fill="white" className="ml-1" />
-            )}
-          </TouchableOpacity>
-
-          {/* Skip Forward */}
-          <TouchableOpacity onPress={next} className="p-3">
-            <SkipForward size={26} color={colors.text} fill={colors.text} />
-          </TouchableOpacity>
-        </View>
-      </ScrollView>
+      </View>
     </SafeAreaView>
   );
 };

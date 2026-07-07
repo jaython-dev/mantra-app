@@ -19,7 +19,7 @@ import {
   NotoSansDevanagari_700Bold,
 } from '@expo-google-fonts/noto-sans-devanagari';
 
-import { AppNavigator } from './navigation/AppNavigator';
+import { AppNavigator, navigationRef } from './navigation/AppNavigator';
 import { MiniPlayer } from './components/MiniPlayer';
 import { dbService } from './services/db/dbService';
 import { usePlayerStore } from './store/playerStore';
@@ -89,7 +89,7 @@ export default function App() {
     <GestureHandlerRootView className="flex-1">
       <SafeAreaProvider>
         <PaperProvider>
-          <NavigationContainer theme={navigationTheme}>
+          <NavigationContainer ref={navigationRef} theme={navigationTheme}>
             <View className="flex-1 relative">
               <AppNavigator />
               {/* Floating MiniPlayer docks persistently across the active tab page */}

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, ScrollView, SafeAreaView, FlatList, StatusBar } from 'react-native';
+import { View, Text, ScrollView, FlatList, StatusBar, TouchableOpacity } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useNavigation } from '@react-navigation/native';
 import { useTheme } from '../../hooks/useTheme';
 import { Header } from '../../components/Header';
@@ -15,7 +16,6 @@ export const HomeScreen: React.FC = () => {
   const navigation = useNavigation<any>();
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('All');
-  
   const playMantra = usePlayerStore(state => state.playMantra);
   const currentMantra = usePlayerStore(state => state.currentMantra);
   
@@ -62,8 +62,10 @@ export const HomeScreen: React.FC = () => {
       <StatusBar barStyle={isDark ? 'light-content' : 'dark-content'} />
       
       <ScrollView
+        key={`${selectedCategory}-${searchQuery}`}
         showsVerticalScrollIndicator={false}
         contentContainerStyle={{ paddingBottom: currentMantra ? 186 : 40 }}
+        keyboardShouldPersistTaps="handled"
       >
         {/* App Greeting & Header Search */}
         <Header
@@ -81,13 +83,16 @@ export const HomeScreen: React.FC = () => {
             horizontal
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={{ paddingHorizontal: 20 }}
+            keyboardShouldPersistTaps="handled"
           >
             {CATEGORIES.map(category => (
               <CategoryChip
                 key={category}
                 title={category}
                 active={selectedCategory === category}
-                onPress={() => setSelectedCategory(category)}
+                onPress={() => {
+                  setSelectedCategory(category);
+                }}
               />
             ))}
           </ScrollView>
