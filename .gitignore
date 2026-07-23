@@ -1,8 +1,6 @@
-# Learn more https://docs.github.com/en/get-started/getting-started-with-git/ignoring-files
-
-# dependencies
+# Dependencies
 node_modules/
-.idea/
+.pnpm-store/
 
 # Expo
 .expo/
@@ -10,33 +8,75 @@ dist/
 web-build/
 expo-env.d.ts
 
-# Native
+# Native / Generated Folders
+/ios
+/android
 .kotlin/
 *.orig.*
 *.jks
 *.p8
 *.p12
 *.key
+*.keystore
 *.mobileprovision
+*.ipa
+*.apk
+*.aab
 
-# Metro
+# Metro & Bundler
 .metro-health-check*
 
-# debug
-npm-debug.*
-yarn-debug.*
-yarn-error.*
+# Python & Backend
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+env/
+ENV/
+*.sqlite3
+db.sqlite3
+db.sqlite3-journal
+.pytest_cache/
+.coverage
+htmlcov/
+media/
+staticfiles/
 
-# macOS
-.DS_Store
+# Logs & Debug
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Local & Environment Configuration
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env*.local
 *.pem
 
-# local env files
-.env*.local
+# IDE & Editor Configuration
+.idea/
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+*.swp
+*.swo
+.claude/
 
-# typescript
+# macOS / OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# TypeScript
 *.tsbuildinfo
-
-# generated native folders
-/ios
-/android

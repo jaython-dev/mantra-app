@@ -1,0 +1,33 @@
+# Python byte-compiled files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Local Database
+db.sqlite3
+db.sqlite3-journal
+*.sqlite3
+
+# Environment & Secrets
+.env
+.env.*
+!.env.example
+venv/
+.venv/
+env/
+ENV/
+
+# Media & Uploads
+media/
+staticfiles/
+
+# Test & Coverage artifacts
+.pytest_cache/
+.coverage
+htmlcov/
+.cache/
+
+# OS & Editor
+.DS_Store
+.idea/
+.vscode/

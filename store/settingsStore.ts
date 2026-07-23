@@ -8,12 +8,18 @@ export interface SettingsState {
   repeatTarget: number; // 11 | 21 | 108 | -1 (Loop)
   sleepTimer: number; // minutes, 0 means inactive
   notifications: boolean;
+  fontSize: number; // For Devanagari text size adjustments
+  readerTheme: 'parchment' | 'ivory' | 'dark';
+  eqPreset: 'flat' | 'vocal' | 'meditation' | 'temple';
   setTheme: (theme: 'light' | 'dark' | 'system') => void;
   setLanguage: (lang: 'en' | 'hi') => void;
   setPlaybackSpeed: (speed: number) => void;
   setRepeatTarget: (count: number) => void;
   setSleepTimer: (minutes: number) => void;
   setNotifications: (enabled: boolean) => void;
+  setFontSize: (size: number) => void;
+  setReaderTheme: (theme: 'parchment' | 'ivory' | 'dark') => void;
+  setEqPreset: (preset: 'flat' | 'vocal' | 'meditation' | 'temple') => void;
 }
 
 export const useSettingsStore = create<SettingsState>((set) => ({
@@ -23,6 +29,9 @@ export const useSettingsStore = create<SettingsState>((set) => ({
   repeatTarget: storage.getNumber('repeatTarget') || 108, // Spiritual default target count
   sleepTimer: 0, // Keep in memory to prevent stale timers on app reload
   notifications: storage.getBoolean('notifications') ?? true,
+  fontSize: storage.getNumber('fontSize') || 24, // High accessibility for Sanskrit reading
+  readerTheme: (storage.getString('readerTheme') as any) || 'parchment',
+  eqPreset: (storage.getString('eqPreset') as any) || 'flat',
 
   setTheme: (theme) => {
     storage.set('theme', theme);
@@ -46,5 +55,17 @@ export const useSettingsStore = create<SettingsState>((set) => ({
   setNotifications: (notifications) => {
     storage.set('notifications', notifications);
     set({ notifications });
+  },
+  setFontSize: (fontSize) => {
+    storage.set('fontSize', fontSize);
+    set({ fontSize });
+  },
+  setReaderTheme: (readerTheme) => {
+    storage.set('readerTheme', readerTheme);
+    set({ readerTheme });
+  },
+  setEqPreset: (eqPreset) => {
+    storage.set('eqPreset', eqPreset);
+    set({ eqPreset });
   },
 }));

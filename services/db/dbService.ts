@@ -19,6 +19,9 @@ interface DatabaseInterface {
   isFavorite(id: string): Promise<boolean>;
   addHistory(mantraId: string): Promise<void>;
   getHistory(limit?: number): Promise<string[]>;
+  getChantedCount(): Promise<number>;
+  getChantedDates(): Promise<string[]>;
+  getChantStreak(): Promise<number>;
 }
 
 // -------------------------------------------------------------
@@ -27,6 +30,8 @@ interface DatabaseInterface {
 class WebDatabase implements DatabaseInterface {
   private favKey = 'mantra_db_favorites';
   private histKey = 'mantra_db_history';
+  private countKey = 'mantra_db_chant_count';
+  private datesKey = 'mantra_db_chant_dates';
 
   async initialize(): Promise<void> {
     // Already loaded
@@ -67,6 +72,18 @@ class WebDatabase implements DatabaseInterface {
       // Remove duplicates to keep list unique of recently played
       list = [mantraId, ...list.filter(x => x !== mantraId)];
       localStorage.setItem(this.histKey, JSON.stringify(list));
+
+      // Increment chant count
+      const currentCount = await this.getChantedCount();
+      localStorage.setItem(this.countKey, String(currentCount + 1));
+
+      // Save unique date
+      const dates = await this.getChantedDates();
+      const todayStr = new Date().toISOString().split('T')[0];
+      if (!dates.includes(todayStr)) {
+        dates.push(todayStr);
+        localStorage.setItem(this.datesKey, JSON.stringify(dates));
+      }
     } catch {}
   }
 
@@ -78,6 +95,55 @@ class WebDatabase implements DatabaseInterface {
     } catch {
       return [];
     }
+  }
+
+  async getChantedCount(): Promise<number> {
+    try {
+      const val = localStorage.getItem(this.countKey);
+      return val ? parseInt(val, 10) : 0;
+    } catch {
+      return 0;
+    }
+  }
+
+  async getChantedDates(): Promise<string[]> {
+    try {
+      const val = localStorage.getItem(this.datesKey);
+      return val ? JSON.parse(val) : [];
+    } catch {
+      return [];
+    }
+  }
+
+  async getChantStreak(): Promise<number> {
+    const dates = await this.getChantedDates();
+    if (dates.length === 0) return 0;
+
+    const sortedDates = [...dates].sort((a, b) => new Date(b).getTime() - new Date(a).getTime());
+    const todayStr = new Date().toISOString().split('T')[0];
+    
+    const today = new Date();
+    const yesterday = new Date();
+    yesterday.setDate(today.getDate() - 1);
+    const yesterdayStr = yesterday.toISOString().split('T')[0];
+
+    if (sortedDates[0] !== todayStr && sortedDates[0] !== yesterdayStr) {
+      return 0;
+    }
+
+    let streak = 0;
+    let checkDate = new Date(sortedDates[0]);
+    
+    while (true) {
+      const checkStr = checkDate.toISOString().split('T')[0];
+      if (sortedDates.includes(checkStr)) {
+        streak++;
+        checkDate.setDate(checkDate.getDate() - 1);
+      } else {
+        break;
+      }
+    }
+    return streak;
   }
 }
 
@@ -156,6 +222,47 @@ class SQLiteDatabase implements DatabaseInterface {
       LIMIT ?
     `, [limit]);
     return rows.map((r: any) => r.mantra_id);
+  }
+
+  async getChantedCount(): Promise<number> {
+    if (!this.db) return 0;
+    const row = await this.db.getFirstAsync('SELECT COUNT(*) as total FROM history');
+    return row ? row.total : 0;
+  }
+
+  async getChantedDates(): Promise<string[]> {
+    if (!this.db) return [];
+    const rows = await this.db.getAllAsync("SELECT DISTINCT substr(played_at, 1, 10) as day FROM history ORDER BY day DESC");
+    return rows.map((r: any) => r.day);
+  }
+
+  async getChantStreak(): Promise<number> {
+    const dates = await this.getChantedDates();
+    if (dates.length === 0) return 0;
+
+    const todayStr = new Date().toISOString().split('T')[0];
+    const today = new Date();
+    const yesterday = new Date();
+    yesterday.setDate(today.getDate() - 1);
+    const yesterdayStr = yesterday.toISOString().split('T')[0];
+
+    if (dates[0] !== todayStr && dates[0] !== yesterdayStr) {
+      return 0;
+    }
+
+    let streak = 0;
+    let checkDate = new Date(dates[0]);
+    
+    while (true) {
+      const checkStr = checkDate.toISOString().split('T')[0];
+      if (dates.includes(checkStr)) {
+        streak++;
+        checkDate.setDate(checkDate.getDate() - 1);
+      } else {
+        break;
+      }
+    }
+    return streak;
   }
 }
 

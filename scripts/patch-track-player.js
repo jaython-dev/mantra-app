@@ -188,3 +188,15 @@ import com.facebook.react.bridge.ReactContext`
   fs.writeFileSync(serviceFile, serviceContent, 'utf8');
   console.log("Successfully patched MusicService.kt to handle ReactNativeHost restrictions under New Architecture.");
 }
+
+// 5. Patch RNTrackPlayerBridge.m to remove unimplemented sleep timer methods which cause startup warnings
+const bridgeFile = path.join(__dirname, '../node_modules/react-native-track-player/ios/RNTrackPlayer/RNTrackPlayerBridge.m');
+if (fs.existsSync(bridgeFile)) {
+  let bridgeContent = fs.readFileSync(bridgeFile, 'utf8');
+  if (bridgeContent.includes('getSleepTimerProgress')) {
+    bridgeContent = bridgeContent.replace(/RCT_EXTERN_METHOD\(getSleepTimerProgress:[\s\S]*?clearSleepTimer:[\s\S]*?reject\);\s*/g, '');
+    fs.writeFileSync(bridgeFile, bridgeContent, 'utf8');
+    console.log("Successfully removed unimplemented sleep timer methods from RNTrackPlayerBridge.m to resolve runtime warnings.");
+  }
+}
+

@@ -2,14 +2,24 @@ import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNavigationContainerRef } from '@react-navigation/native';
-import { Home, Heart, Settings } from 'lucide-react-native';
+import { Home, BookOpen, Download, Bookmark, User } from 'lucide-react-native';
 
 export const navigationRef = createNavigationContainerRef();
+
 import { HomeScreen } from '../features/home/HomeScreen';
-import { FavoritesScreen } from '../features/favorites/FavoritesScreen';
+import { LibraryScreen } from '../features/library/LibraryScreen';
+import { BookDetailsScreen } from '../features/library/BookDetailsScreen';
+import { PDFViewerScreen } from '../features/library/PDFViewerScreen';
+import { ReaderScreen } from '../features/reader/ReaderScreen';
+import { DownloadsScreen } from '../features/downloads/DownloadsScreen';
+import { BookmarksScreen } from '../features/bookmarks/BookmarksScreen';
+import { ProfileScreen } from '../features/profile/ProfileScreen';
+import { SearchScreen } from '../features/search/SearchScreen';
 import { SettingsScreen } from '../features/settings/SettingsScreen';
 import { MantraDetailsScreen } from '../features/mantra/MantraDetailsScreen';
 import { useTheme } from '../hooks/useTheme';
+import { useAuthStore } from '../store/authStore';
+import { AuthScreen } from '../features/profile/AuthScreen';
 
 const Stack = createNativeStackNavigator();
 const Tab = createBottomTabNavigator();
@@ -21,11 +31,11 @@ const TabNavigator = () => {
     <Tab.Navigator
       screenOptions={{
         headerShown: false,
-        tabBarActiveTintColor: '#FF9933',
-        tabBarInactiveTintColor: isDark ? '#8E8E93' : '#AEAEB2',
+        tabBarActiveTintColor: '#7A1E1E', // Temple Maroon active highlight
+        tabBarInactiveTintColor: isDark ? '#8E8E93' : '#8C7A6B',
         tabBarStyle: {
-          backgroundColor: isDark ? '#1E1E1E' : '#FFFFFF',
-          borderTopColor: isDark ? '#2D2D2D' : '#E5E7EB',
+          backgroundColor: isDark ? '#120E0D' : '#FAF7F2', // Ivory / Dark Clay Background
+          borderTopColor: isDark ? '#2D221F' : '#E6DFD3',
           paddingTop: 8,
           paddingBottom: 24,
           height: 84,
@@ -35,11 +45,12 @@ const TabNavigator = () => {
           fontSize: 10,
           fontWeight: '700',
           letterSpacing: 0.5,
+          fontFamily: 'Inter',
         },
       }}
     >
       <Tab.Screen
-        name="Home"
+        name="HomeTab"
         component={HomeScreen}
         options={{
           tabBarLabel: 'Sanctuary',
@@ -47,19 +58,35 @@ const TabNavigator = () => {
         }}
       />
       <Tab.Screen
-        name="FavoritesTab"
-        component={FavoritesScreen}
+        name="LibraryTab"
+        component={LibraryScreen}
         options={{
-          tabBarLabel: 'Favorites',
-          tabBarIcon: ({ color, size }) => <Heart size={size} color={color} />,
+          tabBarLabel: 'Library',
+          tabBarIcon: ({ color, size }) => <BookOpen size={size} color={color} />,
         }}
       />
       <Tab.Screen
-        name="SettingsTab"
-        component={SettingsScreen}
+        name="DownloadsTab"
+        component={DownloadsScreen}
         options={{
-          tabBarLabel: 'Settings',
-          tabBarIcon: ({ color, size }) => <Settings size={size} color={color} />,
+          tabBarLabel: 'Downloads',
+          tabBarIcon: ({ color, size }) => <Download size={size} color={color} />,
+        }}
+      />
+      <Tab.Screen
+        name="BookmarksTab"
+        component={BookmarksScreen}
+        options={{
+          tabBarLabel: 'Sanctuary Log',
+          tabBarIcon: ({ color, size }) => <Bookmark size={size} color={color} />,
+        }}
+      />
+      <Tab.Screen
+        name="ProfileTab"
+        component={ProfileScreen}
+        options={{
+          tabBarLabel: 'Profile',
+          tabBarIcon: ({ color, size }) => <User size={size} color={color} />,
         }}
       />
     </Tab.Navigator>
@@ -68,32 +95,42 @@ const TabNavigator = () => {
 
 export const AppNavigator = () => {
   const { isDark } = useTheme();
+  const { token } = useAuthStore();
 
   return (
     <Stack.Navigator
       screenOptions={{
         headerShown: false,
         contentStyle: {
-          backgroundColor: isDark ? '#121212' : '#FFF8F0',
+          backgroundColor: isDark ? '#120E0D' : '#FAF7F2',
         },
       }}
     >
-      {/* Root Tabs */}
-      <Stack.Screen name="MainTabs" component={TabNavigator} />
-      
-      {/* Immersive Player modal */}
-      <Stack.Screen
-        name="MantraDetails"
-        component={MantraDetailsScreen}
-        options={{
-          presentation: 'modal',
-          animation: 'slide_from_bottom',
-        }}
-      />
-      
-      {/* Direct Push screens */}
-      <Stack.Screen name="Favorites" component={FavoritesScreen} />
-      <Stack.Screen name="Settings" component={SettingsScreen} />
+      {token ? (
+        <>
+          {/* Root Tabs */}
+          <Stack.Screen name="MainTabs" component={TabNavigator} />
+          
+          {/* Immersive Player modal */}
+          <Stack.Screen
+            name="MantraDetails"
+            component={MantraDetailsScreen}
+            options={{
+              presentation: 'modal',
+              animation: 'slide_from_bottom',
+            }}
+          />
+          
+          {/* Direct Push screens */}
+          <Stack.Screen name="BookDetails" component={BookDetailsScreen} />
+          <Stack.Screen name="PDFViewer" component={PDFViewerScreen} />
+          <Stack.Screen name="Reader" component={ReaderScreen} />
+          <Stack.Screen name="Search" component={SearchScreen} />
+          <Stack.Screen name="Settings" component={SettingsScreen} />
+        </>
+      ) : (
+        <Stack.Screen name="Auth" component={AuthScreen} />
+      )}
     </Stack.Navigator>
   );
 };

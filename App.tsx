@@ -1,5 +1,12 @@
 import './global.css'; // NativeWind CSS stylesheet must be loaded first
 import 'react-native-gesture-handler'; // Required gesture handling bootstrap
+import { configureReanimatedLogger, ReanimatedLogLevel } from 'react-native-reanimated';
+
+// Disable strict mode warning logs from Nativewind CSS interop reading/writing shared values during render
+configureReanimatedLogger({
+  level: ReanimatedLogLevel.warn,
+  strict: false,
+});
 
 import React, { useEffect, useState } from 'react';
 import { View, ActivityIndicator, StatusBar } from 'react-native';
@@ -21,12 +28,14 @@ import {
 
 import { AppNavigator, navigationRef } from './navigation/AppNavigator';
 import { MiniPlayer } from './components/MiniPlayer';
+import { SplashScreen } from './components/SplashScreen';
 import { dbService } from './services/db/dbService';
 import { usePlayerStore } from './store/playerStore';
 import { useTheme } from './hooks/useTheme';
 
 export default function App() {
   const [dbInitialized, setDbInitialized] = useState(false);
+  const [splashTimerFinished, setSplashTimerFinished] = useState(false);
   const initAudioService = usePlayerStore(state => state.initAudioService);
   const { colors, isDark } = useTheme();
 
@@ -54,16 +63,17 @@ export default function App() {
     bootstrap();
   }, []);
 
-  // Show a peaceful loading screen until fonts and database are ready
-  if (!fontsLoaded || !dbInitialized) {
-    return (
-      <View
-        style={{ backgroundColor: isDark ? '#121212' : '#FFF8F0' }}
-        className="flex-1 items-center justify-center"
-      >
-        <ActivityIndicator size="large" color="#FF9933" />
-      </View>
-    );
+  // Run a timer to display the splash screen for 4.5 seconds
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setSplashTimerFinished(true);
+    }, 4500);
+    return () => clearTimeout(timer);
+  }, []);
+
+  // Show a peaceful loading screen until fonts, database, and timer are ready
+  if (!fontsLoaded || !dbInitialized || !splashTimerFinished) {
+    return <SplashScreen onFinish={() => setSplashTimerFinished(true)} />;
   }
 
   // Setup navigation themes

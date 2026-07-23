@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, Image, Pressable, TouchableOpacity } from 'react-native';
 import { Play, Pause, ChevronRight } from 'lucide-react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { navigationRef } from '../navigation/AppNavigator';
 import { usePlayerStore } from '../store/playerStore';
 import { useTheme } from '../hooks/useTheme';
@@ -8,7 +9,25 @@ import { blurActiveElement } from '../utils/blurActiveElement';
 
 export const MiniPlayer: React.FC = () => {
   const { colors } = useTheme();
-  
+  const insets = useSafeAreaInsets();
+  const [currentRouteName, setCurrentRouteName] = React.useState<string | null>(null);
+
+  React.useEffect(() => {
+    const handleStateChange = () => {
+      const route = navigationRef.getCurrentRoute();
+      if (route) {
+        setCurrentRouteName(route.name);
+      }
+    };
+
+    if (navigationRef.isReady()) {
+      handleStateChange();
+    }
+
+    const unsubscribe = navigationRef.addListener('state', handleStateChange);
+    return unsubscribe;
+  }, []);
+
   const {
     currentMantra,
     playbackState,
@@ -21,6 +40,20 @@ export const MiniPlayer: React.FC = () => {
 
   if (!currentMantra || isFullPlayerOpen) return null;
 
+  // Hide the MiniPlayer entirely on full-screen reader or player modal screens
+  if (currentRouteName === 'Reader' || currentRouteName === 'MantraDetails') {
+    return null;
+  }
+
+  const isTabScreen = currentRouteName && [
+    'HomeTab',
+    'LibraryTab',
+    'DownloadsTab',
+    'BookmarksTab',
+    'ProfileTab'
+  ].includes(currentRouteName);
+
+  const bottomOffset = isTabScreen ? 96 : Math.max(16, insets.bottom + 8);
   const isPlaying = playbackState === 'playing';
   const progressPercent = duration > 0 ? (position / duration) * 100 : 0;
 
@@ -44,7 +77,7 @@ export const MiniPlayer: React.FC = () => {
       }}
       style={{
         position: 'absolute',
-        bottom: 96,
+        bottom: bottomOffset,
         left: 16,
         right: 16,
         height: 72,

@@ -1,5 +1,5 @@
 {
-  "name": "mantra-app",
+  "name": "brahmpath",
   "version": "1.0.0",
   "main": "index.ts",
   "dependencies": {
@@ -10,9 +10,11 @@
     "@react-navigation/native": "^7.3.7",
     "@react-navigation/native-stack": "^7.17.9",
     "expo": "~57.0.2",
+    "expo-dev-client": "~57.0.7",
     "expo-font": "~57.0.0",
     "expo-sqlite": "~57.0.0",
     "expo-status-bar": "~57.0.0",
+    "expo-web-browser": "^57.0.0",
     "lucide-react-native": "^1.23.0",
     "nativewind": "^4.2.6",
     "react": "19.2.3",
@@ -26,9 +28,12 @@
     "react-native-screens": "4.25.2",
     "react-native-track-player": "^4.1.2",
     "react-native-web": "^0.21.2",
+    "react-native-webview": "^14.0.1",
+    "shaka-player": "^4.16.40",
     "zustand": "^5.0.14"
   },
   "devDependencies": {
+    "@react-native-community/cli": "latest",
     "@types/react": "~19.2.2",
     "babel-preset-expo": "^57.0.1",
     "tailwindcss": "^3.4.19",

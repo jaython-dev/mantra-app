@@ -1,0 +1,1064 @@
+openapi: 3.0.3
+info:
+  title: Hindu Mantra Audiobook API
+  version: 1.0.0
+  description: Production-ready backend API for the Hindu Mantra Audiobook App.
+paths:
+  /api/v1/audio/{mantra_id}/:
+    get:
+      operationId: v1_audio_retrieve
+      description: Retrieve audio metadata associated with a specific mantra. Gated
+        by subscription status.
+      parameters:
+      - in: path
+        name: mantra_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - v1
+      security:
+      - tokenAuth: []
+      - TokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Audio'
+          description: ''
+  /api/v1/auth/change-password/:
+    post:
+      operationId: v1_auth_change_password_create
+      description: Endpoint for changing password.
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ChangePasswordRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ChangePasswordRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ChangePasswordRequest'
+        required: true
+      security:
+      - tokenAuth: []
+      - TokenAuth: []
+      responses:
+        '200':
+          description: Password changed successfully.
+  /api/v1/auth/login/:
+    post:
+      operationId: v1_auth_login_create
+      description: Endpoint for authenticating existing users. Returns token.
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+        required: true
+      security:
+      - tokenAuth: []
+      - TokenAuth: []
+      - {}
+      responses:
+        '200':
+          description: User successfully logged in.
+  /api/v1/auth/logout/:
+    post:
+      operationId: v1_auth_logout_create
+      description: Endpoint for logging out. Revokes token.
+      tags:
+      - v1
+      security:
+      - tokenAuth: []
+      - TokenAuth: []
+      responses:
+        '200':
+          description: User successfully logged out.
+  /api/v1/auth/register/:
+    post:
+      operationId: v1_auth_register_create
+      description: Endpoint for registering new user accounts.
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+        required: true
+      security:
+      - tokenAuth: []
+      - TokenAuth: []
+      - {}
+      responses:
+        '201':
+          description: User successfully registered.
+  /api/v1/books/:
+    get:
+      operationId: v1_books_list
+      description: List all published books. Supports category filtering and search
+        parameters.
+      parameters:
+      - in: query
+        name: category
+        schema:
+          type: string
+        description: Filter books by Category UUID
+      - in: query
+        name: search
+        schema:
+          type: string
+        description: Search books by title, author, or description
+      tags:
+      - v1
+      security:
+      - tokenAuth: []
+      - TokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Book'
+          description: ''
+  /api/v1/books/{book_id}/chapters/:
+    get:
+      operationId: v1_books_chapters_list
+      description: List all chapters associated with a specific book. Gated by Book
+        subscription status.
+      parameters:
+      - in: path
+        name: book_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - v1
+      security:
+      - tokenAuth: []
+      - TokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Chapter'
+          description: ''
+  /api/v1/books/{id}/:
+    get:
+      operationId: v1_books_retrieve
+      description: Retrieve single Book details. Restricts premium books to active
+        subscribers.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - v1
+      security:
+      - tokenAuth: []
+      - TokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Book'
+          description: ''
+  /api/v1/categories/:
+    get:
+      operationId: v1_categories_list
+      description: List all active categories.
+      tags:
+      - v1
+      security:
+      - tokenAuth: []
+      - TokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Category'
+          description: ''
+  /api/v1/chapters/{chapter_id}/mantras/:
+    get:
+      operationId: v1_chapters_mantras_list
+      description: List all mantras inside a specific chapter. Gated by Chapter parent
+        book subscription.
+      parameters:
+      - in: path
+        name: chapter_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      - in: query
+        name: search
+        schema:
+          type: string
+        description: Filter mantras by search term in any translation text
+      tags:
+      - v1
+      security:
+      - tokenAuth: []
+      - TokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Mantra'
+          description: ''
+  /api/v1/chapters/{id}/:
+    get:
+      operationId: v1_chapters_retrieve
+      description: Retrieve single Chapter details. Restricts chapters inside premium
+        books to active subscribers.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - v1
+      security:
+      - tokenAuth: []
+      - TokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Chapter'
+          description: ''
+  /api/v1/mantras/{id}/:
+    get:
+      operationId: v1_mantras_retrieve
+      description: Retrieve single Mantra details. Restricts premium mantras to active
+        subscribers.
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - v1
+      security:
+      - tokenAuth: []
+      - TokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Mantra'
+          description: ''
+  /api/v1/mantras/{mantra_id}/audio/:
+    get:
+      operationId: v1_mantras_audio_retrieve
+      description: Retrieve audio metadata associated with a specific mantra. Gated
+        by subscription status.
+      parameters:
+      - in: path
+        name: mantra_id
+        schema:
+          type: string
+          format: uuid
+        required: true
+      tags:
+      - v1
+      security:
+      - tokenAuth: []
+      - TokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Audio'
+          description: ''
+  /api/v1/mantras/search/:
+    get:
+      operationId: v1_mantras_search_list
+      description: Global search for mantras across all chapters and translations.
+      parameters:
+      - in: query
+        name: search
+        schema:
+          type: string
+        description: Query term matching Sanskrit, Gujarati, Hindi, or English translation
+        required: true
+      tags:
+      - v1
+      security:
+      - tokenAuth: []
+      - TokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Mantra'
+          description: ''
+  /api/v1/payments/:
+    get:
+      operationId: v1_payments_list
+      description: |-
+        Manage payment logs.
+        GET: Retrieve payment history for user.
+        POST: Log a client-side transaction (e.g. from Razorpay check out).
+      tags:
+      - v1
+      security:
+      - tokenAuth: []
+      - TokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Payment'
+          description: ''
+    post:
+      operationId: v1_payments_create
+      description: |-
+        Manage payment logs.
+        GET: Retrieve payment history for user.
+        POST: Log a client-side transaction (e.g. from Razorpay check out).
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PaymentRequestRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PaymentRequestRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PaymentRequestRequest'
+        required: true
+      security:
+      - tokenAuth: []
+      - TokenAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Payment'
+          description: ''
+  /api/v1/payments/webhook/:
+    post:
+      operationId: v1_payments_webhook_create
+      description: Endpoint for verifying and processing background webhook events.
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/WebhookCallbackRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/WebhookCallbackRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/WebhookCallbackRequest'
+        required: true
+      security:
+      - tokenAuth: []
+      - TokenAuth: []
+      - {}
+      responses:
+        '200':
+          description: Webhook processed successfully.
+  /api/v1/profile/:
+    get:
+      operationId: v1_profile_retrieve
+      description: Endpoint to retrieve or modify the authenticated user's profile.
+      tags:
+      - v1
+      security:
+      - tokenAuth: []
+      - TokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          description: ''
+    put:
+      operationId: v1_profile_update
+      description: Endpoint to retrieve or modify the authenticated user's profile.
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProfileRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/ProfileRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ProfileRequest'
+      security:
+      - tokenAuth: []
+      - TokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Profile'
+          description: ''
+  /api/v1/subscription-plans/:
+    get:
+      operationId: v1_subscription_plans_list
+      description: List all active subscription plans.
+      tags:
+      - v1
+      security:
+      - tokenAuth: []
+      - TokenAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/SubscriptionPlan'
+          description: ''
+  /api/v1/subscriptions/:
+    get:
+      operationId: v1_subscriptions_retrieve
+      description: |-
+        Manage user subscriptions.
+        GET: Retrieve current active subscription details.
+        POST: Subscribe to a new plan.
+      tags:
+      - v1
+      security:
+      - tokenAuth: []
+      - TokenAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Subscription'
+          description: ''
+    post:
+      operationId: v1_subscriptions_create
+      description: |-
+        Manage user subscriptions.
+        GET: Retrieve current active subscription details.
+        POST: Subscribe to a new plan.
+      tags:
+      - v1
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SubscribeRequestRequest'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/SubscribeRequestRequest'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/SubscribeRequestRequest'
+        required: true
+      security:
+      - tokenAuth: []
+      - TokenAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Subscription'
+          description: ''
+components:
+  schemas:
+    Audio:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        mantra:
+          type: string
+          format: uuid
+        audio_file:
+          type: string
+          format: uri
+        audio_file_url:
+          type: string
+          readOnly: true
+        duration:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+          description: Duration in seconds
+        start_time:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,6}(?:\.\d{0,2})?$
+        end_time:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,6}(?:\.\d{0,2})?$
+      required:
+      - audio_file
+      - audio_file_url
+      - duration
+      - id
+      - mantra
+    Book:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        category:
+          type: string
+          format: uuid
+        category_name:
+          type: string
+          readOnly: true
+        title:
+          type: string
+          maxLength: 255
+        slug:
+          type: string
+          readOnly: true
+          pattern: ^[-a-zA-Z0-9_]+$
+        description:
+          type: string
+        author:
+          type: string
+          maxLength: 255
+        cover_image:
+          type: string
+          format: uri
+        language:
+          type: string
+          maxLength: 100
+        estimated_duration:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+          description: Estimated duration in seconds
+        display_order:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+        is_published:
+          type: boolean
+        is_premium:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - author
+      - category
+      - category_name
+      - cover_image
+      - created_at
+      - description
+      - display_order
+      - estimated_duration
+      - id
+      - language
+      - slug
+      - title
+      - updated_at
+    Category:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        name:
+          type: string
+          maxLength: 255
+        icon:
+          type: string
+          format: uri
+        display_order:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+        is_active:
+          type: boolean
+      required:
+      - display_order
+      - icon
+      - id
+      - name
+    ChangePasswordRequest:
+      type: object
+      properties:
+        old_password:
+          type: string
+          writeOnly: true
+          minLength: 1
+        new_password:
+          type: string
+          writeOnly: true
+          minLength: 8
+      required:
+      - new_password
+      - old_password
+    Chapter:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        book:
+          type: string
+          format: uuid
+        title:
+          type: string
+          maxLength: 255
+        chapter_number:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+        description:
+          type: string
+        thumbnail:
+          type: string
+          format: uri
+          nullable: true
+        display_order:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+        estimated_duration:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+          description: Estimated duration in seconds
+        is_published:
+          type: boolean
+      required:
+      - book
+      - chapter_number
+      - description
+      - display_order
+      - estimated_duration
+      - id
+      - title
+    LoginRequest:
+      type: object
+      properties:
+        username:
+          type: string
+          minLength: 1
+        password:
+          type: string
+          writeOnly: true
+          minLength: 1
+      required:
+      - password
+      - username
+    Mantra:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        chapter:
+          type: string
+          format: uuid
+        title:
+          type: string
+          maxLength: 255
+        sanskrit_text:
+          type: string
+        gujarati_text:
+          type: string
+        hindi_text:
+          type: string
+        english_text:
+          type: string
+        meaning:
+          type: string
+        notes:
+          type: string
+          nullable: true
+        display_order:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+        audio:
+          allOf:
+          - $ref: '#/components/schemas/Audio'
+          readOnly: true
+      required:
+      - audio
+      - chapter
+      - display_order
+      - english_text
+      - gujarati_text
+      - hindi_text
+      - id
+      - meaning
+      - sanskrit_text
+      - title
+    Payment:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        subscription:
+          type: string
+          format: uuid
+          nullable: true
+        amount:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+        currency:
+          type: string
+          maxLength: 10
+        payment_provider:
+          type: string
+          description: e.g. Razorpay
+          maxLength: 100
+        transaction_id:
+          type: string
+          maxLength: 255
+        payment_status:
+          $ref: '#/components/schemas/PaymentPaymentStatusEnum'
+        payment_date:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - amount
+      - id
+      - payment_date
+      - payment_provider
+      - transaction_id
+    PaymentPaymentStatusEnum:
+      enum:
+      - pending
+      - completed
+      - failed
+      type: string
+      description: |-
+        * `pending` - Pending
+        * `completed` - Completed
+        * `failed` - Failed
+    PaymentRequestPaymentStatusEnum:
+      enum:
+      - completed
+      - failed
+      - pending
+      type: string
+      description: |-
+        * `completed` - completed
+        * `failed` - failed
+        * `pending` - pending
+    PaymentRequestRequest:
+      type: object
+      properties:
+        subscription_id:
+          type: string
+          format: uuid
+        amount:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+        currency:
+          type: string
+          minLength: 1
+          default: INR
+          maxLength: 10
+        payment_provider:
+          type: string
+          minLength: 1
+          maxLength: 100
+        transaction_id:
+          type: string
+          minLength: 1
+          maxLength: 255
+        payment_status:
+          $ref: '#/components/schemas/PaymentRequestPaymentStatusEnum'
+      required:
+      - amount
+      - payment_provider
+      - payment_status
+      - subscription_id
+      - transaction_id
+    Profile:
+      type: object
+      properties:
+        avatar:
+          type: string
+          format: uri
+          nullable: true
+        bio:
+          type: string
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - updated_at
+    ProfileRequest:
+      type: object
+      properties:
+        avatar:
+          type: string
+          format: binary
+          nullable: true
+        bio:
+          type: string
+          nullable: true
+    RegisterRequest:
+      type: object
+      properties:
+        username:
+          type: string
+          minLength: 1
+          maxLength: 150
+        email:
+          type: string
+          format: email
+          minLength: 1
+        password:
+          type: string
+          writeOnly: true
+          minLength: 8
+        bio:
+          type: string
+          default: ''
+      required:
+      - email
+      - password
+      - username
+    StatusEnum:
+      enum:
+      - active
+      - expired
+      - canceled
+      type: string
+      description: |-
+        * `active` - Active
+        * `expired` - Expired
+        * `canceled` - Canceled
+    SubscribeRequestRequest:
+      type: object
+      properties:
+        plan_id:
+          type: string
+          format: uuid
+        auto_renew:
+          type: boolean
+          default: true
+      required:
+      - plan_id
+    Subscription:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        plan:
+          type: string
+          format: uuid
+        plan_name:
+          type: string
+          readOnly: true
+        plan_price:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+          readOnly: true
+        plan_currency:
+          type: string
+          readOnly: true
+        start_date:
+          type: string
+          format: date-time
+          readOnly: true
+        end_date:
+          type: string
+          format: date-time
+          readOnly: true
+        status:
+          allOf:
+          - $ref: '#/components/schemas/StatusEnum'
+          readOnly: true
+        auto_renew:
+          type: boolean
+      required:
+      - end_date
+      - id
+      - plan
+      - plan_currency
+      - plan_name
+      - plan_price
+      - start_date
+      - status
+    SubscriptionPlan:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        name:
+          type: string
+          maxLength: 255
+        duration_days:
+          type: integer
+          maximum: 9223372036854775807
+          minimum: 0
+          format: int64
+          description: Plan duration in days
+        price:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+        currency:
+          type: string
+          maxLength: 10
+        description:
+          type: string
+          nullable: true
+        is_active:
+          type: boolean
+      required:
+      - duration_days
+      - id
+      - name
+      - price
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        username:
+          type: string
+          description: Required. 150 characters or fewer. Letters, digits and @/./+/-/_
+            only.
+          pattern: ^[\w.@+-]+$
+          maxLength: 150
+        email:
+          type: string
+          format: email
+          maxLength: 254
+        profile:
+          allOf:
+          - $ref: '#/components/schemas/Profile'
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - email
+      - id
+      - profile
+      - username
+    WebhookCallbackRequest:
+      type: object
+      properties:
+        provider:
+          type: string
+          minLength: 1
+          maxLength: 100
+        payload: {}
+      required:
+      - payload
+      - provider
+  securitySchemes:
+    tokenAuth:
+      type: apiKey
+      in: header
+      name: Authorization
+      description: Token-based authentication with required prefix "Token"

@@ -22,6 +22,14 @@ module.exports = {
           cosmic: '#121212',
           surfaceDark: '#1E1E1E',
           saffronLight: '#FFB74D',
+          // Premium Hindu Mantra & Audiobook App UI Theme Colors
+          cream: '#FAF7F2',
+          maroon: '#7A1E1E',
+          goldSacred: '#D4AF37',
+          brown: '#3A2E2B',
+          clayBorder: '#E6DFD3',
+          goldGlow: 'rgba(212, 175, 55, 0.15)',
+          maroonLight: 'rgba(122, 30, 30, 0.08)',
         }
       },
       fontFamily: {
